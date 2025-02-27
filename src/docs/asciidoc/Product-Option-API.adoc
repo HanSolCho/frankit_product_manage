@@ -1,0 +1,22 @@
+[[Product-Option-API]]
+== Product Option API
+
+[[상품-옵션-등록]]
+=== 상품 옵션 등록
+operation::option/add[snippets='http-request,request-fields,http-response']
+
+[[상품-옵션-조회]]
+=== 상품 옵션 조회
+operation::option/all[snippets='http-request,request-fields,response-fields,http-response']
+
+[[상품-옵션-변경]]
+=== 상품 옵션 변경
+operation::option/update[snippets='http-request,request-fields,http-response']
+
+[[상품-옵션-삭제]]
+=== 상품 옵션 삭제
+operation::option/delete[snippets='http-request,request-fields,http-response']
+
+[[상품-옵션-값-삭제]]
+=== 상품 옵션 값 삭제
+operation::option-value/delete[snippets='http-request,request-fields,http-response']
