@@ -22,13 +22,12 @@ public class ProductOptionController {
     }
 
     @GetMapping("/select/product")
-    public ResponseEntity<?> selectProductOption(@RequestBody ProductRequestDto productRequestDto){
-        return ResponseEntity.ok(productOptionService.selectProductOption(productRequestDto));
+    public ResponseEntity<?> selectProductOption(@RequestParam(value = "id") Long productId){
+        return ResponseEntity.ok(productOptionService.selectProductOption(productId));
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateProductOption(@RequestBody ProductOptionUpdateRequestDto productOptionUpdateRequestDto){
-        System.out.println(productOptionUpdateRequestDto);
         productOptionService.updateProductOption(productOptionUpdateRequestDto);
         return ResponseEntity.ok().build();
     }

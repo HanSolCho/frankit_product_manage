@@ -62,8 +62,8 @@ public class ProductOptionService {
         }
         log.info("Product option 추가 성공: {}", addedProductOption.getId());
     }
-    public Optional<List<ProductOption>> selectProductOption(ProductRequestDto productRequestDto){
-        return productOptionRepository.findByProductId(productRequestDto.getId());
+    public Optional<List<ProductOption>> selectProductOption(Long productId){
+        return productOptionRepository.findByProductId(productId);
     }
     @Transactional
     public void updateProductOption(ProductOptionUpdateRequestDto productOptionUpdateRequestDto){

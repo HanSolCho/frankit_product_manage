@@ -30,15 +30,13 @@ public class MemberController {
 
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody MemberSignInRequsetDto memberSignInRequsetDto){
-        String id = memberSignInRequsetDto.getMemberId();
-        String password = memberSignInRequsetDto.getPassword();
         JwtToken jwtToken = memberService.signIn(memberSignInRequsetDto);
         return jwtToken;
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateMember(@RequestBody MemberSignInRequsetDto memberSignInRequsetDto){
-        memberService.updateMember(memberSignInRequsetDto);
+    public ResponseEntity<?> updateMember(@RequestBody MemberUpdateRequestDto memberUpdateRequestDto){
+        memberService.updateMember(memberUpdateRequestDto);
         return ResponseEntity.ok().build();
     }
 

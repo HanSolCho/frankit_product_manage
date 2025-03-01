@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
+@Log4j2
 @RequestMapping("/frankit/product-manage/product")
 public class ProductController {
 
@@ -29,8 +30,8 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> selectAllProduct(@RequestParam(value = "page", defaultValue = "0") int page,
-                                              @RequestParam(value = "size", defaultValue = "10") int size){
+    public ResponseEntity<?> selectAllProduct(@RequestParam(value = "pageIndex", defaultValue = "0") int page,
+                                              @RequestParam(value = "pageSize", defaultValue = "10") int size){
         return ResponseEntity.ok(productService.selectAllProduct(page, size));
     }
 
