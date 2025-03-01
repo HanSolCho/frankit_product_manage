@@ -147,7 +147,7 @@ class ProductServiceTest {
         // then: 반환된 결과 검증
         assertThat(result.getProducts()).hasSize(1);  // 한 개의 product가 반환되어야 함
         assertThat(result.getProducts().getFirst().getName()).isEqualTo("product");
-        assertThat(result.getProducts().getFirst().getPrice()).isEqualTo(3000L);  // 페이지 번호 검증
+        assertThat(result.getProducts().getFirst().getPrice()).isEqualTo(3000L);
         assertThat(result.getNumber()).isEqualTo(0);  // 페이지 번호 검증
         assertThat(result.getSize()).isEqualTo(1);  // 페이지 사이즈 검증
 

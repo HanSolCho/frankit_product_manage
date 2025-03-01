@@ -56,11 +56,8 @@ public class ProductService {
 
     // 상품 조회 : 배달비, 금액 관련해서 select 추가 ( 금액 ~만원 이상, 배달비 ~원 이하 이런식으로)
     public ProductSelectPagingResponseDto selectProductByPrice(Long price, int page, int size){
-        log.info(size);
         Pageable pageable = PageRequest.of(page, size);
-        log.info(pageable);
         Page<Product> productPage = productRepository.findByPriceGreaterThanEqual(price,pageable);
-        log.info(productPage);
         List<ProductSelectResponseDto> productSelectResponseDtoList = productPage.stream()
                 .map(ProductSelectResponseDto::new) // Product -> ProductResponseDTO 변환
                 .collect(Collectors.toList());

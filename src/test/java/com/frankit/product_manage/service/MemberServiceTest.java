@@ -2,7 +2,11 @@ package com.frankit.product_manage.service;
 
 import com.frankit.product_manage.Dto.Request.MemberSignInRequsetDto;
 import com.frankit.product_manage.Dto.Request.MemberUpdateRequestDto;
+import com.frankit.product_manage.Dto.Response.MemberSelectPagingResponseDto;
+import com.frankit.product_manage.Dto.Response.MemberSelectResponseDto;
+import com.frankit.product_manage.Dto.Response.ProductSelectPagingResponseDto;
 import com.frankit.product_manage.entity.Member;
+import com.frankit.product_manage.entity.Product;
 import com.frankit.product_manage.exception.member.MemberAlreadyExistsException;
 import com.frankit.product_manage.exception.member.MemberNotFoundException;
 import com.frankit.product_manage.exception.member.MemberNotValidatePasswordException;
@@ -17,9 +21,14 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -53,6 +62,7 @@ class MemberServiceTest {
                 .num(1L)
                 .id("id")
                 .password(pw) // 실제 비밀번호는 테스트를 위해 평문 그대로 두고, 암호화는 mocking 처리
+                .role("USER")
                 .build();
 
         // SignIn 요청을 위한 Dto 설정
@@ -109,6 +119,49 @@ class MemberServiceTest {
     //select 관련 신규 기능 추가한 테스트 코드도 추가하고 확인 필요.
 
     @Test
+    void selectAllMember() {
+        // given: 페이지 정보를 설정
+        int page = 0;
+        int size = 1;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // productRepository에서 반환할 Page 객체 설정
+        Page<Member> memberPage = new PageImpl<>(List.of(member));
+
+        // when: productRepository.findAll을 mock하여 반환값 설정
+        when(memberRepository.findAll(pageable)).thenReturn(memberPage);
+
+        // when: service 메서드 호출
+        MemberSelectPagingResponseDto result = memberService.selectAllMember(page, size);
+
+        // then: 반환된 결과 검증
+        assertThat(result.getMembers()).hasSize(1);  // 한 개의 product가 반환되어야 함
+        assertThat(result.getMembers().getFirst().getId()).isEqualTo("id");
+        assertThat(result.getNumber()).isEqualTo(0);  // 페이지 번호 검증
+        assertThat(result.getSize()).isEqualTo(1);  // 페이지 사이즈 검증
+
+        // productRepository.findAll이 한 번 호출되었는지 검증
+        verify(memberRepository, times(1)).findAll(pageable);
+    }
+
+    @Test
+    void selectMemberById() {
+        // given: 페이지 정보를 설정
+        String id = "id";
+        // when: productRepository.findAll을 mock하여 반환값 설정
+        when(memberRepository.findById(id)).thenReturn(Optional.ofNullable(member));
+
+        // when: service 메서드 호출
+        Optional<MemberSelectResponseDto> result = memberService.selectMemberById(id);
+
+        // then: 반환된 결과 검증
+        assertThat(result.get().getId()).isEqualTo("id");
+
+        verify(memberRepository, times(1)).findById(id);
+    }
+
+    @Test
     @DisplayName("회원 정보 변경 성공") // 관련 valid check 로직은 따로 테스트 메소드 생성
     void updateMember() {
         // given
@@ -125,6 +178,26 @@ class MemberServiceTest {
 
         // then: 비밀번호가 업데이트되고 save 메소드가 호출되었는지 검증
         assertThat(selectMember.getPassword()).isEqualTo("newPassword");
+        verify(memberRepository).save(selectMember);  // save 메소드가 한 번 호출되었는지 확인
+    }
+
+    @Test
+    @DisplayName("회원 권한 변경 성공") // 관련 valid check 로직은 따로 테스트 메소드 생성
+    void updateRoleMember() {
+        // given
+        when(memberRepository.findById("id")).thenReturn(Optional.of(member));
+
+        // when: validateMember 호출 (updateMember 내부의 validateMember 호출) - 이 부분은 생략 가능
+        Optional<Member> validMember = memberRepository.findById("id");
+        assertThat(validMember).isPresent();  // 회원이 존재하는지 확인
+
+        // 비밀번호 업데이트
+        Member selectMember = validMember.get();
+        selectMember.setRole("ADMIN");
+        memberRepository.save(selectMember);
+
+        // then: 비밀번호가 업데이트되고 save 메소드가 호출되었는지 검증
+        assertThat(selectMember.getRole()).isEqualTo("ADMIN");
         verify(memberRepository).save(selectMember);  // save 메소드가 한 번 호출되었는지 확인
     }
 

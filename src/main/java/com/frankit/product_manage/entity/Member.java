@@ -30,6 +30,9 @@ public class Member implements UserDetails {
     @NotNull
     @Column(nullable = false)
     private String password;
+    @NotNull
+    @Column(nullable = false)
+    private String role;
 
     @PrePersist
     public void prePersist() {

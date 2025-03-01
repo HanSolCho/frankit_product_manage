@@ -1,6 +1,8 @@
 package com.frankit.product_manage.controller;
 
 import com.frankit.product_manage.Dto.Request.MemberSignInRequsetDto;
+import com.frankit.product_manage.Dto.Request.MemberUpdateRequestDto;
+import com.frankit.product_manage.Dto.Request.MemberUpdateRoleRequestDto;
 import com.frankit.product_manage.jwt.JwtToken;
 import com.frankit.product_manage.service.MemberService;
 import org.springframework.http.ResponseEntity;

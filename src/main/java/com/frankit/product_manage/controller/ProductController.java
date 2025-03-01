@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
-@Log4j2
 @RequestMapping("/frankit/product-manage/product")
 public class ProductController {
 
