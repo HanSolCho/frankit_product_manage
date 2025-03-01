@@ -24,18 +24,18 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("hi1").password("123").build();
+        Member member = Member.builder().id("id").password("123").build();
 
         /*
         when
          */
-        Member result1 = memberRepository.save(member);
+        Member result = memberRepository.save(member);
 
         /*
         then
          */
-        assertThat(result1.getId()).isEqualTo(member.getId());
-        assertThat(result1.getPassword()).isEqualTo(member.getPassword());
+        assertThat(result.getId()).isEqualTo(member.getId());
+        assertThat(result.getPassword()).isEqualTo(member.getPassword());
 
     }
 
@@ -45,7 +45,7 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("hi1").password("123").build();
+        Member member = Member.builder().id("id").password("123").build();
         memberRepository.save(member);
 
         /*
@@ -57,7 +57,7 @@ class MemberRepositoryTest {
         then
          */
         assertThat(result.size()).isEqualTo(1);
-        assertThat(member.getId()).isEqualTo(result.get(0).getId());
+        assertThat(member.getId()).isEqualTo(result.getFirst().getId());
 
     }
 
@@ -67,15 +67,15 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("hi1").password("123").build();
+        Member member = Member.builder().id("id").password("123").build();
         memberRepository.save(member);
 
         List<Member> result = memberRepository.findAll();
 
-        assertThat(member.getId()).isEqualTo(result.get(0).getId());
+        assertThat(member.getId()).isEqualTo(result.getFirst().getId());
 
-        Member updateMember = result.get(0);
-        updateMember.setId("hi2");
+        Member updateMember = result.getFirst();
+        updateMember.setId("updateId");
         memberRepository.save(updateMember);
 
         /*
@@ -85,8 +85,8 @@ class MemberRepositoryTest {
         /*
         then
          */
-        assertThat(updateMember.getId()).isEqualTo(updateResult.get(0).getId());
-        assertThat("hi1").isNotEqualTo(updateResult.get(0).getId());
+        assertThat(updateMember.getId()).isEqualTo(updateResult.getFirst().getId());
+        assertThat("id").isNotEqualTo(updateResult.getFirst().getId());
 
     }
 
@@ -96,27 +96,27 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("hi1").password("123").build();
-        Member member2 = Member.builder().id("hi2").password("123").build();
+        Member member = Member.builder().id("id").password("123").build();
+        Member member2 = Member.builder().id("id2").password("123").build();
         memberRepository.save(member);
         memberRepository.save(member2);
 
         List<Member> result = memberRepository.findAll();
 
         assertThat(result.size()).isEqualTo(2);
-        assertThat(member.getId()).isEqualTo(result.get(0).getId());
+        assertThat(member.getId()).isEqualTo(result.getFirst().getId());
 
         /*
         when
          */
-        memberRepository.deleteById(2l); // Member 변수에서 key(id)는 num, 변수로 저장되는 id는 memberId
+        memberRepository.deleteById(2L); // Member 변수에서 key(id)는 num, 변수로 저장되는 id는 memberId
         List<Member> deleteResult = memberRepository.findAll();
 
         /*
         then
          */
         assertThat(deleteResult.size()).isEqualTo(1);
-        assertThat(member.getId()).isEqualTo(deleteResult.get(0).getId());
+        assertThat(member.getId()).isEqualTo(deleteResult.getFirst().getId());
 
     }
 
@@ -126,9 +126,9 @@ class MemberRepositoryTest {
          /*
         given
          */
-        Member member = Member.builder().id("hi1").password("123").build();
-        Member member2 = Member.builder().id("hi2").password("123").build();
-        Member member3 = Member.builder().id("hi3").password("123").build();
+        Member member = Member.builder().id("id").password("123").build();
+        Member member2 = Member.builder().id("id2").password("123").build();
+        Member member3 = Member.builder().id("id3").password("123").build();
         memberRepository.save(member);
         memberRepository.save(member2);
         memberRepository.save(member3);

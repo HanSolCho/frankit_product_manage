@@ -1,12 +1,12 @@
 package com.frankit.product_manage.service;
 
 import com.frankit.product_manage.Dto.Request.*;
-import com.frankit.product_manage.Dto.Response.ProductSelectPagingResponseDto;
 import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.Product;
 import com.frankit.product_manage.entity.ProductOption;
 import com.frankit.product_manage.entity.SelectOptionValue;
-import com.frankit.product_manage.exception.ProductException;
+import com.frankit.product_manage.exception.ErrorCode;
+import com.frankit.product_manage.exception.product.option.ProductOptionException;
 import com.frankit.product_manage.repository.ProductOptionRepository;
 import com.frankit.product_manage.repository.ProductRepository;
 import com.frankit.product_manage.repository.SelectOptionValueRepository;
@@ -75,11 +75,11 @@ class ProductOptionServiceTest {
         selectOptionValueMap.put(2L, "Blue");  // SelectOptionValue ID 2에 대해 "Blue"
 
         product = Product.builder()
-                .id(1l)
+                .id(1L)
                 .name("product")
                 .description("description")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .options(List.of(productOption))
                 .build();
@@ -87,25 +87,25 @@ class ProductOptionServiceTest {
         //Dto 설정
 
         productRequestDto = new ProductRequestDto();
-        productRequestDto.setId(1l);
+        productRequestDto.setId(1L);
         productRequestDto.setName("product");
         productRequestDto.setDescription("description");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(1000l);
+        productRequestDto.setPrice(3000L);
+        productRequestDto.setDeliveryFee(1000L);
 
         selectOptionValueAddRequestDto = new SelectOptionValueAddRequestDto();
         selectOptionValueAddRequestDto.setName(List.of("Red", "Blue"));
 
         productOptionAddRequestDto = new ProductOptionAddRequestDto();
-        productOptionAddRequestDto.setProductId(1l);
+        productOptionAddRequestDto.setProductId(1L);
         productOptionAddRequestDto.setName("Color");
         productOptionAddRequestDto.setType(OptionType.SELECT);
         productOptionAddRequestDto.setPrice(1000L);
         productOptionAddRequestDto.setSelectOptionValue(selectOptionValueAddRequestDto);
 
         productOptionUpdateRequestDto = new ProductOptionUpdateRequestDto();
-        productOptionUpdateRequestDto.setId(1l);
-        productOptionUpdateRequestDto.setProductId(1l);
+        productOptionUpdateRequestDto.setId(1L);
+        productOptionUpdateRequestDto.setProductId(1L);
         productOptionUpdateRequestDto.setName("update Color");
         productOptionUpdateRequestDto.setType(OptionType.SELECT);
         productOptionUpdateRequestDto.setPrice(1000L);
@@ -142,7 +142,7 @@ class ProductOptionServiceTest {
         when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
         // when & then: ProductException이 발생해야 한다
-        assertThrows(ProductException.class, () -> productOptionService.addProductOption(productOptionAddRequestDto));
+        assertThrows(ProductOptionException.class, () -> productOptionService.addProductOption(productOptionAddRequestDto));
         verify(productRepository, never()).save(product);
     }
 
@@ -154,7 +154,10 @@ class ProductOptionServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // when & then: IllegalStateException이 발생해야 한다
-        assertThrows(IllegalStateException.class, () -> productOptionService.addProductOption(productOptionAddRequestDto));
+        ProductOptionException exception = assertThrows(ProductOptionException.class,
+                () -> productOptionService.addProductOption(productOptionAddRequestDto));
+
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.TOO_MANY_OPTIONS);
         verify(productRepository, never()).save(product);
     }
 
@@ -166,14 +169,14 @@ class ProductOptionServiceTest {
         when(productOptionRepository.findByProductId(1L)).thenReturn(Optional.of(productOptionList));
 
         // when: selectProductOption 메소드 호출
-        Optional<List<ProductOption>> result = productOptionService.selectProductOption(productRequestDto);
+        Optional<List<ProductOption>> result = productOptionService.selectProductOption(productRequestDto.getId());
 
         // then: productOptionRepository.findByProductId가 호출되었는지 검증
         verify(productOptionRepository, times(1)).findByProductId(1L);
 
         assertTrue(result.isPresent());  // Optional이 비어있지 않음
         assertEquals(2, result.get().size());  // 옵션 개수는 2개여야 함
-        assertEquals("Color", result.get().get(0).getName());  // 첫 번째 옵션 이름이 "Color"여야 함
+        assertEquals("Color", result.get().getFirst().getName());  // 첫 번째 옵션 이름이 "Color"여야 함
 
     }
 
@@ -185,7 +188,7 @@ class ProductOptionServiceTest {
         ProductOptionUpdateRequestDto updateRequestDto = new ProductOptionUpdateRequestDto();
         updateRequestDto.setId(1L);
         updateRequestDto.setName("Updated Option");
-        updateRequestDto.setPrice(1000l);
+        updateRequestDto.setPrice(1000L);
         updateRequestDto.setType(OptionType.INPUT);
 
         // Mock 객체 설정
@@ -232,12 +235,12 @@ class ProductOptionServiceTest {
 
         // When: 메서드 호출
         productOptionService.updateProductOption(updateRequestDto);
-        Optional<List<ProductOption>> result = productOptionService.selectProductOption(productRequestDto);
+        Optional<List<ProductOption>> result = productOptionService.selectProductOption(productRequestDto.getId());
 
         // Then: 검증
         verify(selectOptionValueRepository).deleteByProductOptionId(1L); // 타입 변경 시 기존 SELECT 하위 옵션 삭제
         verify(productOptionRepository).save(productOption); // 상품 옵션 저장
-        assertNotEquals(OptionType.SELECT, result.get().get(0).getType());  // 옵션 개수는 2개여야 함
+        assertNotEquals(OptionType.SELECT, result.get().getFirst().getType());  // 옵션 개수는 2개여야 함
     }
 
     @Test

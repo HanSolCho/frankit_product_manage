@@ -32,6 +32,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,12 +100,7 @@ class ProductOptionControllerTest {
     @DisplayName("상품 옵션 조회 Controller 테스트") //id만 사용하고 있지만 상품 자체의 정보는 보유하고있는게 좋을것으로 판단. 데이터 크기가 작고 확장가능성
     void testSelectProductOption() throws Exception {
         //given
-        ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setId(1L);
-        productRequestDto.setName("공책");
-        productRequestDto.setDescription("필기를 할 수 있는 노트입니다");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(0l);
+        Long productId = 1L;
         // mock 응답 데이터 준비
         SelectOptionValue optionValue1 = SelectOptionValue.builder()
                 .id(1L)
@@ -118,24 +115,21 @@ class ProductOptionControllerTest {
                 .selectOptionValueList(List.of(optionValue1))  // 선택 가능한 옵션 값 목록
                 .build();
 
-        when(productOptionService.selectProductOption(productRequestDto))
+        when(productOptionService.selectProductOption(productId))
                 .thenReturn(Optional.of(List.of(productOption)));  // Optional로 감싸서 반환
 
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(get("/frankit/product-manage/option/select/product")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productRequestDto)))
+                        .param("id",String.valueOf(productId))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
 
                 .andDo(
                         document("option/all", //여기이름이 스니펫 폴더 이름
-                                requestFields(  // 실제 요청 본문 필드 설명
-                                        fieldWithPath("id").description("상품 관리 번호"),
-                                        fieldWithPath("name").description("상품 이름"),
-                                        fieldWithPath("description").description("상품소개"),
-                                        fieldWithPath("price").description("가격"),
-                                        fieldWithPath("deliveryFee").description("배달비")
+                                queryParameters(  // 실제 요청 본문 필드 설명
+                                        parameterWithName("id")
+                                                .description("상품 관리 번호")
                                 ),
                                 responseFields(
                                         fieldWithPath("[].id").description("상품 옵션 ID"),
@@ -149,7 +143,7 @@ class ProductOptionControllerTest {
                         )
                 );
 
-        verify(productOptionService, times(1)).selectProductOption(productRequestDto);
+        verify(productOptionService, times(1)).selectProductOption(productId);
     }
 
     @Test
@@ -157,7 +151,7 @@ class ProductOptionControllerTest {
     void testUpdateProductOption() throws Exception {
         //given
         HashMap<Long,String> optionValueMap = new HashMap<>();
-        optionValueMap.put(1l,"Red"); // key : select option value의 id /  value : select option의 value
+        optionValueMap.put(1L,"Red"); // key : select option value의 id /  value : select option의 value
 
         ProductOptionUpdateRequestDto productOptionUpdateRequestDto = new ProductOptionUpdateRequestDto();
         productOptionUpdateRequestDto.setId(1L);

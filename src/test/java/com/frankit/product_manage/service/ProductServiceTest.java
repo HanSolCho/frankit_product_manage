@@ -6,6 +6,7 @@ import com.frankit.product_manage.Dto.Request.ProductRequestDto;
 import com.frankit.product_manage.Dto.Response.ProductSelectPagingResponseDto;
 import com.frankit.product_manage.Dto.Response.ProductSelectResponseDto;
 import com.frankit.product_manage.entity.*;
+import com.frankit.product_manage.exception.product.ProductNotFoundException;
 import com.frankit.product_manage.repository.MemberRepository;
 import com.frankit.product_manage.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,27 +66,27 @@ class ProductServiceTest {
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         product = Product.builder()
-                .id(1l)
+                .id(1L)
                 .name("product")
                 .description("description")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .options(List.of(productOption))
                 .build();
 
         //Dto 설정
         productRequestDto = new ProductRequestDto();
-        productRequestDto.setId(1l);
+        productRequestDto.setId(1L);
         productRequestDto.setName("product");
         productRequestDto.setDescription("description");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(1000l);
+        productRequestDto.setPrice(3000L);
+        productRequestDto.setDeliveryFee(1000L);
         productRegisterRequestDto = new ProductRegisterRequestDto();
         productRegisterRequestDto.setName("product");
         productRegisterRequestDto.setDescription("description");
-        productRegisterRequestDto.setPrice(3000l);
-        productRegisterRequestDto.setDeliveryFee(1000l);
+        productRegisterRequestDto.setPrice(3000L);
+        productRegisterRequestDto.setDeliveryFee(1000L);
 
     }
     @Test
@@ -117,7 +118,7 @@ class ProductServiceTest {
 
         // then: 반환된 결과 검증
         assertThat(result.getProducts()).hasSize(1);  // 한 개의 product가 반환되어야 함
-        assertThat(result.getProducts().get(0).getName()).isEqualTo("product");
+        assertThat(result.getProducts().getFirst().getName()).isEqualTo("product");
         assertThat(result.getNumber()).isEqualTo(0);  // 페이지 번호 검증
         assertThat(result.getSize()).isEqualTo(1);  // 페이지 사이즈 검증
 
@@ -126,14 +127,43 @@ class ProductServiceTest {
     }
 
     @Test
+    void selectProductOverPrice() {
+        // given: 페이지 정보를 설정
+        int page = 0;
+        int size = 1;
+        Long price = 3000L;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // productRepository에서 반환할 Page 객체 설정
+        Page<Product> productPage = new PageImpl<>(List.of(product));
+
+        // when: productRepository.findAll을 mock하여 반환값 설정
+        when(productRepository.findByPriceGreaterThanEqual(price,pageable)).thenReturn(productPage);
+
+        // when: service 메서드 호출
+        ProductSelectPagingResponseDto result = productService.selectProductByPrice(price,page, size);
+
+        // then: 반환된 결과 검증
+        assertThat(result.getProducts()).hasSize(1);  // 한 개의 product가 반환되어야 함
+        assertThat(result.getProducts().getFirst().getName()).isEqualTo("product");
+        assertThat(result.getProducts().getFirst().getPrice()).isEqualTo(3000L);  // 페이지 번호 검증
+        assertThat(result.getNumber()).isEqualTo(0);  // 페이지 번호 검증
+        assertThat(result.getSize()).isEqualTo(1);  // 페이지 사이즈 검증
+
+        // productRepository.findAll이 한 번 호출되었는지 검증
+        verify(productRepository, times(1)).findByPriceGreaterThanEqual(price,pageable);
+    }
+
+    @Test
     void updateProduct() {
         // given: 제품이 존재하는 경우
         ProductRequestDto updaeDto = new ProductRequestDto();
-        updaeDto.setId(1l);
+        updaeDto.setId(1L);
         updaeDto.setName("update product");
         updaeDto.setDescription("description");
-        updaeDto.setPrice(3000l);
-        updaeDto.setDeliveryFee(1000l);
+        updaeDto.setPrice(3000L);
+        updaeDto.setDeliveryFee(1000L);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(productRepository.save(ArgumentMatchers.any(Product.class))).thenReturn(product);
@@ -179,7 +209,7 @@ class ProductServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // when: deleteProduct 메서드 호출
-        productService.deleteProduct(productRequestDto);
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(productRequestDto));
 
         // then: deleteById 메서드가 호출되지 않아야 한다
         verify(productRepository, never()).deleteById(1L);

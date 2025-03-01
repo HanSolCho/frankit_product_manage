@@ -2,6 +2,7 @@ package com.frankit.product_manage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frankit.product_manage.Dto.Request.MemberSignInRequsetDto;
+import com.frankit.product_manage.Dto.Request.MemberUpdateRequestDto;
 import com.frankit.product_manage.config.TestSecurityConfig;
 import com.frankit.product_manage.entity.Member;
 import com.frankit.product_manage.jwt.JwtToken;
@@ -112,14 +113,15 @@ public class MemberControllerTest {
     @DisplayName("회원정보 업데이트 Controller 테스트") // 정상적으로 호출 여부 확인, 비즈니스 로직은 Service 단에서
     public void testUpdateMember() throws Exception {
         //given
-        MemberSignInRequsetDto memberSignInRequsetDto = new MemberSignInRequsetDto();
-        memberSignInRequsetDto.setMemberId("id");
-        memberSignInRequsetDto.setPassword("password");
+        MemberUpdateRequestDto memberUpdateRequestDto = new MemberUpdateRequestDto();
+        memberUpdateRequestDto.setMemberId("id");
+        memberUpdateRequestDto.setPresentPassword("password");
+        memberUpdateRequestDto.setUpdatePassword("updatepassword");
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(put("/frankit/product-manage/member/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(memberSignInRequsetDto)))
+                        .content(new ObjectMapper().writeValueAsString(memberUpdateRequestDto)))
                 .andExpect(status().isOk())
 
                 .andDo(
@@ -131,7 +133,7 @@ public class MemberControllerTest {
                         )
                 );
 
-        verify(memberService, times(1)).updateMember(memberSignInRequsetDto);
+        verify(memberService, times(1)).updateMember(memberUpdateRequestDto);
     }
 
     @Test

@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,8 +67,8 @@ class ProductControllerTest {
         ProductRegisterRequestDto productRequestDto = new ProductRegisterRequestDto();
         productRequestDto.setName("공책");
         productRequestDto.setDescription("필기를 할 수 있는 노트입니다");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(0l);
+        productRequestDto.setPrice(3000L);
+        productRequestDto.setDeliveryFee(0L);
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(post("/frankit/product-manage/product/register")
@@ -110,16 +111,16 @@ class ProductControllerTest {
                 .build();
 
         Product mockProducts = Product.builder()
-                .id(1l)
+                .id(1L)
                 .name("첫번째 상품")
                 .description("첫번째 상품입니다")
-                .price(3000l)
-                .deliveryFee(0l)
+                .price(3000L)
+                .deliveryFee(0L)
                 .date(new Date())
                 .options(List.of(productOption))
                 .build();
 
-        List<Product> content = Arrays.asList(mockProducts);
+        List<Product> content = Collections.singletonList(mockProducts);
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage = new PageImpl<>(content, pageable, 10);
 
@@ -132,17 +133,17 @@ class ProductControllerTest {
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(get("/frankit/product-manage/product/all")
-                        .param("page",String.valueOf(page))
-                        .param("size",String.valueOf(size))
+                        .param("pageIndex",String.valueOf(page))
+                        .param("pageSize",String.valueOf(size))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
 
                 .andDo(
                         document("product/all", //여기이름이 스니펫 폴더 이름
                                 queryParameters(  // 실제 요청 본문 필드 설명
-                                        parameterWithName("page")
+                                        parameterWithName("pageIndex")
                                                 .description("전체 상품 페이지 중 몇번째 페이지인지"),
-                                        parameterWithName("size")
+                                        parameterWithName("pageSize")
                                                 .description("페이지 별 상품 개수")
                                 ),
                                 responseFields(  // 응답 본문 필드 설명
@@ -174,15 +175,103 @@ class ProductControllerTest {
     }
 
     @Test
+    @DisplayName("가격 상품 조회 Controller 테스트")
+    void testSelectProductOverpice() throws Exception   {
+        int page = 0;
+        int size = 1;
+        Long price = 3000L;
+        // mock 응답 데이터 준비
+        // mock 응답 데이터 준비
+        SelectOptionValue optionValue1 = SelectOptionValue.builder()
+                .id(1L)
+                .name("빨강")
+                .build();
+
+        ProductOption productOption = ProductOption.builder()
+                .id(1L)
+                .name("색상")
+                .type(OptionType.SELECT)  // 예: 색상 옵션은 선택 타입
+                .price(500L)  // 옵션 추가 금액
+                .selectOptionValueList(List.of(optionValue1))  // 선택 가능한 옵션 값 목록
+                .build();
+
+        Product mockProducts = Product.builder()
+                .id(1L)
+                .name("첫번째 상품")
+                .description("첫번째 상품입니다")
+                .price(3000L)
+                .deliveryFee(0L)
+                .date(new Date())
+                .options(List.of(productOption))
+                .build();
+
+        List<Product> content = Collections.singletonList(mockProducts);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = new PageImpl<>(content, pageable, 10);
+
+
+        when(productService.selectProductByPrice(price,page, size)).thenReturn(new ProductSelectPagingResponseDto(
+                content.stream().map(ProductSelectResponseDto::new).collect(Collectors.toList()),
+                productPage.getNumber(),
+                productPage.getSize())
+        );
+
+        //when & then: 예상되는 결과 검증
+        mockMvc.perform(get("/frankit/product-manage/product/over-price")
+                        .param("price",String.valueOf(price))
+                        .param("pageIndex",String.valueOf(page))
+                        .param("pageSize",String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+
+                .andDo(
+                        document("product/over-price", //여기이름이 스니펫 폴더 이름
+                                queryParameters(  // 실제 요청 본문 필드 설명
+                                        parameterWithName("price")
+                                                .description("기준 가격"),
+                                        parameterWithName("pageIndex")
+                                                .description("전체 상품 페이지 중 몇번째 페이지인지"),
+                                        parameterWithName("pageSize")
+                                                .description("페이지 별 상품 개수")
+                                ),
+                                responseFields(  // 응답 본문 필드 설명
+                                        fieldWithPath("products").description("상품 목록"),
+                                        fieldWithPath("products[].id").description("상품 ID"),
+                                        fieldWithPath("products[].name").description("상품 이름"),
+                                        fieldWithPath("products[].description").description("상품 설명"),
+                                        fieldWithPath("products[].price").description("상품 가격"),
+                                        fieldWithPath("products[].deliveryFee").description("배송비"),
+                                        fieldWithPath("products[].date").description("상품 등록 날짜 (ISO-8601 형식)"),
+                                        fieldWithPath("products[].productOptionSelectList").description("상품 옵션 목록"),
+
+                                        fieldWithPath("products[].productOptionSelectList[].id").description("옵션 ID"),
+                                        fieldWithPath("products[].productOptionSelectList[].name").description("옵션 이름"),
+                                        fieldWithPath("products[].productOptionSelectList[].type").description("옵션 타입 (SELECT 또는 INPUT)"),
+                                        fieldWithPath("products[].productOptionSelectList[].price").description("옵션 가격"),
+                                        fieldWithPath("products[].productOptionSelectList[].selectOptionValueList").description("선택 옵션 값 목록 (옵션 타입이 SELECT일 때)"),
+
+                                        fieldWithPath("products[].productOptionSelectList[].selectOptionValueList[].id").description("옵션 값 ID"),
+                                        fieldWithPath("products[].productOptionSelectList[].selectOptionValueList[].name").description("옵션 값 이름"),
+
+                                        fieldWithPath("number").description("현재 페이지 번호"),
+                                        fieldWithPath("size").description("페이지 크기")
+                                )
+                        )
+                );
+
+        verify(productService, times(1)).selectProductByPrice(price,page,size);
+    }
+
+    @Test
     @DisplayName("상품 정보 변경 Controller 테스트")
     void testUpdateProduct() throws Exception   {
         //given
         ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setId(1l);
+        productRequestDto.setId(1L);
         productRequestDto.setName("공책");
         productRequestDto.setDescription("필기를 할 수 있는 노트입니다");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(0l);
+        productRequestDto.setPrice(3000L);
+        productRequestDto.setDeliveryFee(0L);
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(MockMvcRequestBuilders.put("/frankit/product-manage/product/update")
@@ -210,11 +299,11 @@ class ProductControllerTest {
     void testDeleteProduct() throws Exception {
         //given
         ProductRequestDto productRequestDto = new ProductRequestDto();
-        productRequestDto.setId(1l);
+        productRequestDto.setId(1L);
         productRequestDto.setName("공책");
         productRequestDto.setDescription("필기를 할 수 있는 노트입니다");
-        productRequestDto.setPrice(3000l);
-        productRequestDto.setDeliveryFee(0l);
+        productRequestDto.setPrice(3000L);
+        productRequestDto.setDeliveryFee(0L);
 
         //when & then: 예상되는 결과 검증
         mockMvc.perform(MockMvcRequestBuilders.delete("/frankit/product-manage/product/delete")

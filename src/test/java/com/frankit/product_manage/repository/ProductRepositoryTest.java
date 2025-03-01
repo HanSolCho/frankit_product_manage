@@ -1,9 +1,6 @@
 package com.frankit.product_manage.repository;
 
-import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.Product;
-import com.frankit.product_manage.entity.ProductOption;
-import com.frankit.product_manage.exception.ProductException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,8 +28,8 @@ class ProductRepositoryTest {
         Product product = Product.builder()
                 .name("name")
                 .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         productRepository.save(product);
@@ -58,9 +54,9 @@ class ProductRepositoryTest {
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Product product = Product.builder()
                 .name("name")
-                .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .description("description")
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         productRepository.save(product);
@@ -74,7 +70,7 @@ class ProductRepositoryTest {
         then
          */
         assertThat(result.size()).isEqualTo(1);
-        assertThat(product.getId()).isEqualTo(result.get(0).getId());
+        assertThat(product.getId()).isEqualTo(result.getFirst().getId());
 
     }
 
@@ -87,16 +83,16 @@ class ProductRepositoryTest {
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Product product = Product.builder()
                 .name("name")
-                .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .description("description")
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         Product product2 = Product.builder()
                 .name("name2")
-                .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .description("description")
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         productRepository.save(product);
@@ -104,10 +100,10 @@ class ProductRepositoryTest {
 
         List<Product> result = productRepository.findAll();
 
-        assertThat(product.getId()).isEqualTo(result.get(0).getId());
+        assertThat(product.getId()).isEqualTo(result.getFirst().getId());
 
-        Product updateProduct = result.get(0);
-        updateProduct.setPrice(2000l);
+        Product updateProduct = result.getFirst();
+        updateProduct.setPrice(2000L);
         productRepository.save(updateProduct);
 
         /*
@@ -117,8 +113,8 @@ class ProductRepositoryTest {
         /*
         then
          */
-        assertThat(updateProduct.getPrice()).isEqualTo(updateResult.get(0).getPrice());
-        assertThat(3000l).isNotEqualTo(updateResult.get(0).getPrice());
+        assertThat(updateProduct.getPrice()).isEqualTo(updateResult.getFirst().getPrice());
+        assertThat(3000L).isNotEqualTo(updateResult.getFirst().getPrice());
 
     }
 
@@ -131,16 +127,16 @@ class ProductRepositoryTest {
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
         Product product = Product.builder()
                 .name("name")
-                .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .description("description")
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         Product product2 = Product.builder()
                 .name("name2")
-                .description("descroption")
-                .price(3000l)
-                .deliveryFee(1000l)
+                .description("description")
+                .price(3000L)
+                .deliveryFee(1000L)
                 .date(currentDate) // 현재 날짜 받아서 넣기
                 .build();
         productRepository.save(product);
@@ -150,14 +146,14 @@ class ProductRepositoryTest {
         /*
         when
          */
-        productRepository.deleteById(2l);
+        productRepository.deleteById(2L);
         List<Product> deleteResult = productRepository.findAll();
 
         /*
         then
          */
         assertThat(deleteResult.size()).isEqualTo(1);
-        assertThat(product.getId()).isEqualTo(deleteResult.get(0).getId());
+        assertThat(product.getId()).isEqualTo(deleteResult.getFirst().getId());
 
     }
 }

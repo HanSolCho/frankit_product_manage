@@ -1,10 +1,9 @@
 package com.frankit.product_manage.repository;
 
-import com.frankit.product_manage.entity.Member;
 import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.Product;
 import com.frankit.product_manage.entity.ProductOption;
-import com.frankit.product_manage.exception.ProductException;
+import com.frankit.product_manage.exception.product.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class ProductOptionRepositoryTest {
@@ -26,13 +24,14 @@ class ProductOptionRepositoryTest {
     ProductRepository productRepository;
     @Autowired
     ProductOptionRepository productOptionRepository;
-    private Product product; // 공통으로 사용할 Product 객체 선언
     private Product selectProduct;
+
     @BeforeEach
     void setUp() {
         // given
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-        product = Product.builder()
+
+        Product product = Product.builder()
                 .name("name")
                 .description("description")
                 .price(3000L)
@@ -41,8 +40,8 @@ class ProductOptionRepositoryTest {
                 .build();
         productRepository.save(product);
 
-        selectProduct = productRepository.findById(1l)
-                .orElseThrow(() -> new ProductException("Product not found"));
+        selectProduct = productRepository.findById(1L)
+                .orElseThrow(ProductNotFoundException::new);
 
     }
 
@@ -55,7 +54,7 @@ class ProductOptionRepositoryTest {
         ProductOption productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
@@ -80,7 +79,7 @@ class ProductOptionRepositoryTest {
         ProductOption productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
@@ -95,7 +94,7 @@ class ProductOptionRepositoryTest {
         then
          */
         assertThat(result.size()).isEqualTo(1);
-        assertThat(productOption.getId()).isEqualTo(result.get(0).getId());
+        assertThat(productOption.getId()).isEqualTo(result.getFirst().getId());
 
     }
 
@@ -108,13 +107,13 @@ class ProductOptionRepositoryTest {
         ProductOption productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
         ProductOption productOption2 = ProductOption.builder()
                 .name("name2")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
@@ -123,10 +122,10 @@ class ProductOptionRepositoryTest {
 
         List<ProductOption> result = productOptionRepository.findAll();
 
-        assertThat(productOption.getId()).isEqualTo(result.get(0).getId());
+        assertThat(productOption.getId()).isEqualTo(result.getFirst().getId());
 
-        ProductOption updateProductOption = result.get(0);
-        updateProductOption.setPrice(2000l);
+        ProductOption updateProductOption = result.getFirst();
+        updateProductOption.setPrice(2000L);
         productOptionRepository.save(updateProductOption);
 
         /*
@@ -136,8 +135,8 @@ class ProductOptionRepositoryTest {
         /*
         then
          */
-        assertThat(updateProductOption.getPrice()).isEqualTo(updateResult.get(0).getPrice());
-        assertThat(3000l).isNotEqualTo(updateResult.get(0).getPrice());
+        assertThat(updateProductOption.getPrice()).isEqualTo(updateResult.getFirst().getPrice());
+        assertThat(3000L).isNotEqualTo(updateResult.getFirst().getPrice());
 
     }
 
@@ -150,14 +149,14 @@ class ProductOptionRepositoryTest {
         ProductOption productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
         ProductOption productOption2 = ProductOption.builder()
                 .name("name2")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
@@ -168,14 +167,14 @@ class ProductOptionRepositoryTest {
         /*
         when
          */
-        productOptionRepository.deleteById(2l);
+        productOptionRepository.deleteById(2L);
         List<ProductOption> deleteResult = productOptionRepository.findAll();
 
         /*
         then
          */
         assertThat(deleteResult.size()).isEqualTo(1);
-        assertThat(productOption.getId()).isEqualTo(deleteResult.get(0).getId());
+        assertThat(productOption.getId()).isEqualTo(deleteResult.getFirst().getId());
 
     }
     @Test
@@ -187,7 +186,7 @@ class ProductOptionRepositoryTest {
         ProductOption productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
@@ -196,11 +195,11 @@ class ProductOptionRepositoryTest {
         /*
         when
          */
-        Optional<List<ProductOption>> result = productOptionRepository.findByProductId(1l);
+        Optional<List<ProductOption>> result = productOptionRepository.findByProductId(1L);
 
         /*
         then
          */
-        assertThat(productOption.getName()).isEqualTo(result.get().get(0).getName());
+        assertThat(productOption.getName()).isEqualTo(result.get().getFirst().getName());
     }
 }

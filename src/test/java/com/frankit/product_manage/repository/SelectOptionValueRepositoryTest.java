@@ -4,7 +4,7 @@ import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.Product;
 import com.frankit.product_manage.entity.ProductOption;
 import com.frankit.product_manage.entity.SelectOptionValue;
-import com.frankit.product_manage.exception.ProductException;
+import com.frankit.product_manage.exception.product.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class SelectOptionValueRepositoryTest {
@@ -27,15 +26,14 @@ class SelectOptionValueRepositoryTest {
     ProductOptionRepository productOptionRepository;
     @Autowired
     SelectOptionValueRepository selectOptionValueRepository;
-    private Product product; // 공통으로 사용할 Product 객체 선언
-    private Product selectProduct;
     private ProductOption productOption;
     private ProductOption selectProductOption;
     @BeforeEach
     void setUp() {
         // given
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-        product = Product.builder()
+
+        Product product = Product.builder()
                 .name("name")
                 .description("description")
                 .price(3000L)
@@ -44,20 +42,20 @@ class SelectOptionValueRepositoryTest {
                 .build();
         productRepository.save(product);
 
-        selectProduct = productRepository.findById(1l)
-                .orElseThrow(() -> new ProductException("Product not found"));
+        Product selectProduct = productRepository.findById(1L)
+                .orElseThrow(ProductNotFoundException::new);
 
         productOption = ProductOption.builder()
                 .name("name")
                 .type(OptionType.SELECT)
-                .price(3000l)
+                .price(3000L)
                 .product(selectProduct)
                 .build();
 
         productOptionRepository.save(productOption);
 
-        selectProductOption = productOptionRepository.findById(1l)
-                .orElseThrow(() -> new ProductException("Product not found"));
+        selectProductOption = productOptionRepository.findById(1L)
+                .orElseThrow(ProductNotFoundException::new);
 
     }
     @Test
@@ -102,7 +100,7 @@ class SelectOptionValueRepositoryTest {
         then
          */
         assertThat(result.size()).isEqualTo(1);
-        assertThat(selectOptionValue.getId()).isEqualTo(result.get(0).getId());
+        assertThat(selectOptionValue.getId()).isEqualTo(result.getFirst().getId());
 
     }
 
@@ -120,9 +118,9 @@ class SelectOptionValueRepositoryTest {
 
         List<SelectOptionValue> result = selectOptionValueRepository.findAll();
 
-        assertThat(selectOptionValue.getId()).isEqualTo(result.get(0).getId());
+        assertThat(selectOptionValue.getId()).isEqualTo(result.getFirst().getId());
 
-        SelectOptionValue updateSelectOptionValue = result.get(0);
+        SelectOptionValue updateSelectOptionValue = result.getFirst();
         updateSelectOptionValue.setName("Red");
         selectOptionValueRepository.save(updateSelectOptionValue);
 
@@ -133,8 +131,8 @@ class SelectOptionValueRepositoryTest {
         /*
         then
          */
-        assertThat(updateSelectOptionValue.getName()).isEqualTo(updateResult.get(0).getName());
-        assertThat("Blue").isNotEqualTo(updateResult.get(0).getName());
+        assertThat(updateSelectOptionValue.getName()).isEqualTo(updateResult.getFirst().getName());
+        assertThat("Blue").isNotEqualTo(updateResult.getFirst().getName());
 
     }
 
@@ -159,13 +157,13 @@ class SelectOptionValueRepositoryTest {
         /*
         when
          */
-        selectOptionValueRepository.deleteById(2l);
+        selectOptionValueRepository.deleteById(2L);
         List<SelectOptionValue> deleteResult = selectOptionValueRepository.findAll();
 
         /*
         then
          */
         assertThat(deleteResult.size()).isEqualTo(1);
-        assertThat(selectOptionValue.getName()).isEqualTo(deleteResult.get(0).getName());
+        assertThat(selectOptionValue.getName()).isEqualTo(deleteResult.getFirst().getName());
     }
 }
