@@ -34,6 +34,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.selectAllProduct(page, size));
     }
 
+    @GetMapping("/over-price")
+    public ResponseEntity<?> selectProductOverPrice(
+            @RequestParam(value = "price", defaultValue = "0") Long price,
+            @RequestParam(value = "pageIndex", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int size){
+        return ResponseEntity.ok(productService.selectProductByPrice(price,page,size));
+    }
+
     @PutMapping("/update")
     public ResponseEntity<?> updateProduct(@RequestBody ProductRequestDto productRequestDto){
         productService.updateProduct(productRequestDto);
