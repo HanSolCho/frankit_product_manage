@@ -35,9 +35,9 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/delete")
-    public ResponseEntity<?> deleteMember(@RequestBody MemberSignInRequsetDto memberSignInRequsetDto){
-        memberService.deleteMember(memberSignInRequsetDto);
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteMember(@RequestBody MemberUpdateRoleRequestDto memberUpdateRoleRequestDto){
+        memberService.deleteMemberFromAdmin(memberUpdateRoleRequestDto.getMemberId());
         return ResponseEntity.ok().build();
     }
 

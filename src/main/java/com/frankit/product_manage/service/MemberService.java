@@ -154,6 +154,20 @@ public class MemberService {
         }
     }
 
+    @Transactional
+    public void deleteMemberFromAdmin(String id){
+
+        Optional<Member> deleteMember = memberRepository.findById(id);
+
+        if (deleteMember.isPresent()) {
+            memberRepository.deleteById(deleteMember.get().getNum());
+            log.info("회원 삭제 성공: {}", id);
+        }else {
+            log.error("회원 삭제 실패: 존재하지 않는 회원 ID: {}", id);
+            throw new MemberNotFoundException();
+        }
+    }
+
     public void validateMember(String id, String password) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(MemberNotFoundException::new);
