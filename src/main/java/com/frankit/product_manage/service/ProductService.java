@@ -112,6 +112,15 @@ public class ProductService {
         if (deleteProduct.isPresent()) {
             productRepository.deleteById(deleteProduct.get().getId());
             log.info("제품 삭제 성공: {}", productRequestDto.getId());
+            Optional<List<ProductOption>> deleteProductOption = productOptionRepository.findByProductId(productRequestDto.getId());
+            if(deleteProductOption.isPresent()) {
+                for (ProductOption productOption : deleteProductOption.get()) {
+                    productOptionRepository.deleteById(productOption.getId());
+                    if (productOption.getType() == OptionType.SELECT) {
+                        selectOptionValueRepository.deleteByProductOptionId(productOption.getId());
+                    }
+                }
+            }
         } else {
             log.error("삭제 실패: 존재하지 않는 제품 ID: {}", productRequestDto.getId());
             throw new ProductNotFoundException();
