@@ -24,7 +24,7 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("id").password("123").build();
+        Member member = Member.builder().id("id").password("123").role("USER").build();
 
         /*
         when
@@ -45,7 +45,7 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("id").password("123").build();
+        Member member = Member.builder().id("id").password("123").role("USER").build();
         memberRepository.save(member);
 
         /*
@@ -67,7 +67,7 @@ class MemberRepositoryTest {
         /*
         given
          */
-        Member member = Member.builder().id("id").password("123").build();
+        Member member = Member.builder().id("id").password("123").role("USER").build();
         memberRepository.save(member);
 
         List<Member> result = memberRepository.findAll();
@@ -91,13 +91,13 @@ class MemberRepositoryTest {
     }
 
     @Test
-    @DisplayName("멤버 삳제 Test")
+    @DisplayName("멤버 삭제 Test")
     void deleteMemberTest(){
         /*
         given
          */
-        Member member = Member.builder().id("id").password("123").build();
-        Member member2 = Member.builder().id("id2").password("123").build();
+        Member member = Member.builder().id("id").password("123").role("USER").build();
+        Member member2 = Member.builder().id("id2").password("123").role("USER").build();
         memberRepository.save(member);
         memberRepository.save(member2);
 
@@ -126,9 +126,9 @@ class MemberRepositoryTest {
          /*
         given
          */
-        Member member = Member.builder().id("id").password("123").build();
-        Member member2 = Member.builder().id("id2").password("123").build();
-        Member member3 = Member.builder().id("id3").password("123").build();
+        Member member = Member.builder().id("id").password("123").role("USER").build();
+        Member member2 = Member.builder().id("id2").password("123").role("USER").build();
+        Member member3 = Member.builder().id("id3").password("123").role("USER").build();
         memberRepository.save(member);
         memberRepository.save(member2);
         memberRepository.save(member3);

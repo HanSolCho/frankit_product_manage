@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 @Data
 public class ProductOptionSelectResponseDto {
     private Long id;
-    private String name;  // 옵션 이름 (예: 색상, 사이즈)
-    private OptionType type;  // 옵션 타입 (입력 타입 / 선택 타입) input,select
-    private Long price;  // 옵션 추가 금액
-    private List<SelectOptionValueSelectResponseDto> selectOptionValueList;  // 선택 타입일 경우, 선택 가능한 값 목록
+    private String name;
+    private OptionType type;
+    private Long price;
+    private List<SelectOptionValueSelectResponseDto> selectOptionValueList;
 
     // 생성자
     public ProductOptionSelectResponseDto(ProductOption option) {

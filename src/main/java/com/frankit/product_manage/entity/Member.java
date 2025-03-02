@@ -44,22 +44,14 @@ public class Member implements UserDetails {
         }
     }
 
-    // getUsername() 메소드 추가
     @Override
     public String getUsername() {
         return this.id;  // id 또는 username을 반환
     }
 
-//    @ElementCollection(fetch = FetchType.EAGER)
-//    @Builder.Default
-//    private List<String> roles = new ArrayList<>();
-//    // 권한을 반환하지 않거나, 기본적으로 빈 권한을 반환, 프로젝트 확장시 role 추가?
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-//        return this.roles.stream()
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
     }
 
     @Override

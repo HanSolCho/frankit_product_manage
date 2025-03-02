@@ -43,7 +43,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public void signUP(MemberSignInRequsetDto memberSignInRequsetDto) {
-        // 이미 존재하는 ID인지 확인
         try {
             Optional<Member> existingMember = memberRepository.findById(memberSignInRequsetDto.getMemberId());
             if (existingMember.isPresent()) {
@@ -71,18 +70,9 @@ public class MemberService {
     @Transactional
     public JwtToken signIn(MemberSignInRequsetDto memberSignInRequsetDto) {
         try {
-            log.error("로그인 1111111: ");
             validateMember(memberSignInRequsetDto.getMemberId(), memberSignInRequsetDto.getPassword());
-            log.error("로그인 22222222: ");
-            // 1. username + password 를 기반으로 Authentication 객체 생성
-            // 이때 authentication 은 인증 여부를 확인하는 authenticated 값이 false
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(memberSignInRequsetDto.getMemberId(), memberSignInRequsetDto.getPassword());
-            log.error("로그인 3333333333: ");
-            // 2. 실제 검증. authenticate() 메서드를 통해 요청된 Member 에 대한 검증 진행
-            // authenticate 메서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드 실행
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            // 3. 인증 정보를 기반으로 JWT 토큰 생성
-            log.error("로그인 44444444: ");
 
             JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
             return jwtToken;
@@ -165,10 +155,8 @@ public class MemberService {
     }
 
     public void validateMember(String id, String password) {
-        // 1. ID 유효성 체크
         Member member = memberRepository.findById(id)
                 .orElseThrow(MemberNotFoundException::new);
-        // 2. 비밀번호 유효성 체크
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new MemberNotValidatePasswordException();
         }

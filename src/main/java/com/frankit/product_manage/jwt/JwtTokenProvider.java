@@ -26,16 +26,13 @@ public class JwtTokenProvider {
 
     private final Key key;
 
-    //properties에 설정한 key 값 가져와서 셋팅
     public JwtTokenProvider(@Value("${jwt.secret.key}") String secretKey){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    //Member 정보를 사용하여 torken 생성
     public JwtToken generateToken(Authentication authentication){
-        System.out.println("generateToken");
-        //권한 가져오기
+
         String authorities = authentication.getAuthorities().stream()
                 .map(auth -> auth.getAuthority())
                 .collect(Collectors.joining(","));
@@ -43,7 +40,7 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         Date accessTokenExpiresIn = new Date(now + 86400000);
-        // Access Token 생성
+
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -51,12 +48,11 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .setExpiration(new Date(now + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-        System.out.println("generateToken end");
+
         return JwtToken.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -64,28 +60,21 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken) {
-        // Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
-        // 클레임에서 권한 정보 가져오기
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        // UserDetails 객체를 만들어서 Authentication return
-        // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
-        System.out.println("Claim: " + claims.get("auth"));
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -105,8 +94,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-
-    // accessToken
     private Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder()

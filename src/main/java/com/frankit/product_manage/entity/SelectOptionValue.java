@@ -19,6 +19,6 @@ public class SelectOptionValue {
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_option_id")
-    private ProductOption productOption;  // 해당 값이 속한 상품 옵션
+    private ProductOption productOption;
 
 }

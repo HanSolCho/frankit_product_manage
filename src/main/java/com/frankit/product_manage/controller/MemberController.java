@@ -8,11 +8,6 @@ import com.frankit.product_manage.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**todo: 로그인 - 회원가입,로그인 기능 구현 -> 비밀번호 변경, 회원 삭제기능 옵션 구상 -> 삭제 시 비밀번호 체크 로직 추가
- * dto 수정 : 회원가입과 로그인이 동일하게 사용할지, 동일하다면 명칭변경
- *
- */
-
 
 @RestController
 @RequestMapping("/frankit/product-manage/member")

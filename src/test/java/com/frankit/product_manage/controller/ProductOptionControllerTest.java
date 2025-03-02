@@ -1,16 +1,12 @@
 package com.frankit.product_manage.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frankit.product_manage.Dto.Request.*;
-import com.frankit.product_manage.Dto.Response.ProductSelectPagingResponseDto;
-import com.frankit.product_manage.Dto.Response.ProductSelectResponseDto;
 import com.frankit.product_manage.config.TestSecurityConfig;
 import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.ProductOption;
 import com.frankit.product_manage.entity.SelectOptionValue;
 import com.frankit.product_manage.service.ProductOptionService;
-import com.frankit.product_manage.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -85,23 +79,13 @@ class ProductOptionControllerTest {
 
         verify(productOptionService, times(1)).addProductOption(productOptionAddRequestDto);
     }
-    //여기서부터 다시ㅏ!1! 응답값!!!
 
-//    [
-//    {
-//        "id": 5,
-//            "name": "Color update",
-//            "type": "INPUT",
-//            "price": 3700,
-//            "selectOptionValueList": []
-//    },
-//    ]
     @Test
-    @DisplayName("상품 옵션 조회 Controller 테스트") //id만 사용하고 있지만 상품 자체의 정보는 보유하고있는게 좋을것으로 판단. 데이터 크기가 작고 확장가능성
+    @DisplayName("상품 옵션 조회 Controller 테스트")
     void testSelectProductOption() throws Exception {
         //given
         Long productId = 1L;
-        // mock 응답 데이터 준비
+
         SelectOptionValue optionValue1 = SelectOptionValue.builder()
                 .id(1L)
                 .name("빨강")
@@ -110,13 +94,13 @@ class ProductOptionControllerTest {
         ProductOption productOption = ProductOption.builder()
                 .id(1L)
                 .name("색상")
-                .type(OptionType.SELECT)  // 예: 색상 옵션은 선택 타입
-                .price(500L)  // 옵션 추가 금액
-                .selectOptionValueList(List.of(optionValue1))  // 선택 가능한 옵션 값 목록
+                .type(OptionType.SELECT)
+                .price(500L)
+                .selectOptionValueList(List.of(optionValue1))
                 .build();
 
         when(productOptionService.selectProductOption(productId))
-                .thenReturn(Optional.of(List.of(productOption)));  // Optional로 감싸서 반환
+                .thenReturn(Optional.of(List.of(productOption)));
 
 
         //when & then: 예상되는 결과 검증
@@ -177,8 +161,6 @@ class ProductOptionControllerTest {
                                         fieldWithPath("price").description("옵션 비용"),
                                         fieldWithPath("selectOptionValueMap").description("옵션값 key value hash map 구조는 selectOptionValueMap.*에 추가 설명"),
                                         fieldWithPath("selectOptionValueMap.*").description("... 데이터 구조 맞춰서 입력해주기")
-//                                        subsectionWithPath("selectOptionValueUpdateRequestDto.selectOptionValueMap")
-//                                                .description("옵션 값 타입이 SELECT일 때 각 옵션 값의 ID와 값 (예: {\"1\": \"Red\"})")
                                 )
                         )
                 );

@@ -2,7 +2,6 @@ package com.frankit.product_manage.Dto.Response;
 
 import lombok.Data;
 
-import java.util.List;
 @Data
 public class MemberSelectResponseDto {
     private String id;

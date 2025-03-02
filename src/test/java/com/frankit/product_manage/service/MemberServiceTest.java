@@ -53,7 +53,7 @@ class MemberServiceTest {
     private PasswordEncoder passwordEncoder;
     private Member member;
     private MemberSignInRequsetDto memberSignInRequsetDto;
-    private MemberUpdateRequestDto memberUpdateRequestDto;  // 테스트용 DTO 객체
+    private MemberUpdateRequestDto memberUpdateRequestDto;
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
@@ -61,11 +61,11 @@ class MemberServiceTest {
         member = Member.builder()
                 .num(1L)
                 .id("id")
-                .password(pw) // 실제 비밀번호는 테스트를 위해 평문 그대로 두고, 암호화는 mocking 처리
+                .password(pw)
                 .role("USER")
                 .build();
 
-        // SignIn 요청을 위한 Dto 설정
+
         memberSignInRequsetDto = new MemberSignInRequsetDto();
         memberSignInRequsetDto.setMemberId("id");
         memberSignInRequsetDto.setPassword("password");
@@ -73,12 +73,12 @@ class MemberServiceTest {
         memberUpdateRequestDto = new MemberUpdateRequestDto();
         memberUpdateRequestDto.setMemberId("id");
         memberUpdateRequestDto.setPresentPassword("password");
-        memberUpdateRequestDto.setUpdatePassword("newPassword");  // 새로운 비밀번호
+        memberUpdateRequestDto.setUpdatePassword("newPassword");
 
     }
 
     @Test
-    @DisplayName("멤버 등록 성공") //실패 기능은 실패 관련 분기 처리 후 그때 그때 추가, save가 정상 호출되었다면 Repository Test 영역
+    @DisplayName("멤버 등록 성공")
     void signUpMemberSuccess() {
         /*
         given
@@ -115,8 +115,6 @@ class MemberServiceTest {
     void signInMemberSuccess() {
     //
     }
-    //update 관련 테스트 코드 손보고 실제 테스트도 다시 확인해야함.
-    //select 관련 신규 기능 추가한 테스트 코드도 추가하고 확인 필요.
 
     @Test
     void selectAllMember() {
@@ -126,79 +124,73 @@ class MemberServiceTest {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        // productRepository에서 반환할 Page 객체 설정
         Page<Member> memberPage = new PageImpl<>(List.of(member));
 
-        // when: productRepository.findAll을 mock하여 반환값 설정
         when(memberRepository.findAll(pageable)).thenReturn(memberPage);
 
         // when: service 메서드 호출
         MemberSelectPagingResponseDto result = memberService.selectAllMember(page, size);
 
         // then: 반환된 결과 검증
-        assertThat(result.getMembers()).hasSize(1);  // 한 개의 product가 반환되어야 함
+        assertThat(result.getMembers()).hasSize(1);
         assertThat(result.getMembers().getFirst().getId()).isEqualTo("id");
-        assertThat(result.getNumber()).isEqualTo(0);  // 페이지 번호 검증
-        assertThat(result.getSize()).isEqualTo(1);  // 페이지 사이즈 검증
+        assertThat(result.getNumber()).isEqualTo(0);
+        assertThat(result.getSize()).isEqualTo(1);
 
-        // productRepository.findAll이 한 번 호출되었는지 검증
         verify(memberRepository, times(1)).findAll(pageable);
     }
 
     @Test
     void selectMemberById() {
-        // given: 페이지 정보를 설정
+        // given:
         String id = "id";
-        // when: productRepository.findAll을 mock하여 반환값 설정
         when(memberRepository.findById(id)).thenReturn(Optional.ofNullable(member));
 
-        // when: service 메서드 호출
+        // when:
         Optional<MemberSelectResponseDto> result = memberService.selectMemberById(id);
 
-        // then: 반환된 결과 검증
+        // then:
         assertThat(result.get().getId()).isEqualTo("id");
 
         verify(memberRepository, times(1)).findById(id);
     }
 
     @Test
-    @DisplayName("회원 정보 변경 성공") // 관련 valid check 로직은 따로 테스트 메소드 생성
+    @DisplayName("회원 정보 변경 성공")
     void updateMember() {
         // given
         when(memberRepository.findById("id")).thenReturn(Optional.of(member));
 
-        // when: validateMember 호출 (updateMember 내부의 validateMember 호출) - 이 부분은 생략 가능
+        // when:
         Optional<Member> validMember = memberRepository.findById("id");
-        assertThat(validMember).isPresent();  // 회원이 존재하는지 확인
+        assertThat(validMember).isPresent();
 
-        // 비밀번호 업데이트
         Member selectMember = validMember.get();
         selectMember.setPassword("newPassword");
         memberRepository.save(selectMember);
 
-        // then: 비밀번호가 업데이트되고 save 메소드가 호출되었는지 검증
+        // then:
         assertThat(selectMember.getPassword()).isEqualTo("newPassword");
-        verify(memberRepository).save(selectMember);  // save 메소드가 한 번 호출되었는지 확인
+        verify(memberRepository).save(selectMember);
     }
 
     @Test
-    @DisplayName("회원 권한 변경 성공") // 관련 valid check 로직은 따로 테스트 메소드 생성
+    @DisplayName("회원 권한 변경 성공")
     void updateRoleMember() {
         // given
         when(memberRepository.findById("id")).thenReturn(Optional.of(member));
 
-        // when: validateMember 호출 (updateMember 내부의 validateMember 호출) - 이 부분은 생략 가능
+        // when:
         Optional<Member> validMember = memberRepository.findById("id");
-        assertThat(validMember).isPresent();  // 회원이 존재하는지 확인
+        assertThat(validMember).isPresent();
 
-        // 비밀번호 업데이트
         Member selectMember = validMember.get();
         selectMember.setRole("ADMIN");
         memberRepository.save(selectMember);
 
-        // then: 비밀번호가 업데이트되고 save 메소드가 호출되었는지 검증
+        // then:
         assertThat(selectMember.getRole()).isEqualTo("ADMIN");
-        verify(memberRepository).save(selectMember);  // save 메소드가 한 번 호출되었는지 확인
+        verify(memberRepository).save(selectMember);
     }
 
     @Test
@@ -206,14 +198,14 @@ class MemberServiceTest {
         // given
         when(memberRepository.findById("id")).thenReturn(Optional.of(member));
 
-        // when: validateMember 호출 (updateMember 내부의 validateMember 호출) - 이 부분은 생략 가능
+        // when:
         Optional<Member> validMember = memberRepository.findById("id");
-        assertThat(validMember).isPresent();  // 회원이 존재하는지 확인
-        // 비밀번호 업데이트
-        memberRepository.deleteById(member.getNum());  // 제품이 존재하면 삭제
+        assertThat(validMember).isPresent();
 
-        // then: 비밀번호가 업데이트되고 save 메소드가 호출되었는지 검증
-        verify(memberRepository).deleteById(member.getNum());  // member.getNum()이 1이라면 deleteById(1)이 호출되어야 함
+        memberRepository.deleteById(member.getNum());
+
+        // then:
+        verify(memberRepository).deleteById(member.getNum());
     }
 
     @Test
@@ -222,29 +214,29 @@ class MemberServiceTest {
         // given
         when(memberRepository.findById("id")).thenReturn(Optional.empty());
 
-        // when: validateMember 호출 (updateMember 내부의 validateMember 호출) - 이 부분은 생략 가능
+        // when:
         Optional<Member> validMember = memberRepository.findById("id");
-        assertThat(validMember).isNotPresent();  // 회원이 존재하지 않음을 확인
+        assertThat(validMember).isNotPresent();
 
-        // then: 예외가 발생하는지 검증
+        // then:
         assertThatThrownBy(() -> {
-            throw new MemberNotFoundException();  // 실제 코드와 동일한 예외를 발생시킴
+            throw new MemberNotFoundException();
         }).isInstanceOf(MemberNotFoundException.class);
     }
 
     @Test
     void validatePassword() {
-        // given: memberRepository에서 id가 "testId"인 멤버가 있을 때
+        // given:
         String password = "password";
         String databasePassword = "password";
         when(passwordEncoder.matches(password, databasePassword)).thenReturn(true);
 
-        // when: validateMember 호출
+        // when:
         boolean validCheck = passwordEncoder.matches(password, databasePassword);
 
-        // then: matches 메소드가 true를 반환하는지 확인
+        // then:
         assertThat(validCheck).isTrue();
-        // verify: passwordEncoder.matches가 호출되었는지 확인
-        verify(passwordEncoder).matches(password, databasePassword);  // matches(a, b)가 정확히 호출되었는지 확인
+        // verify:
+        verify(passwordEncoder).matches(password, databasePassword);
     }
 }
