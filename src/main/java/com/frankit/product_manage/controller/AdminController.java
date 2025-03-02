@@ -1,5 +1,6 @@
 package com.frankit.product_manage.controller;
 
+import com.frankit.product_manage.Dto.Request.MemberSignInRequsetDto;
 import com.frankit.product_manage.Dto.Request.MemberUpdateRoleRequestDto;
 import com.frankit.product_manage.service.MemberService;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,12 @@ public class AdminController {
     @PutMapping("/update-role")
     public ResponseEntity<?> updateRoleMember(@RequestBody MemberUpdateRoleRequestDto memberUpdateRoleRequestDto){
         memberService.updateRoleMember(memberUpdateRoleRequestDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/delete")
+    public ResponseEntity<?> deleteMember(@RequestBody MemberSignInRequsetDto memberSignInRequsetDto){
+        memberService.deleteMember(memberSignInRequsetDto);
         return ResponseEntity.ok().build();
     }
 

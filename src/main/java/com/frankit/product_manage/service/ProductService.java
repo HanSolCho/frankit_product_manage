@@ -4,9 +4,13 @@ import com.frankit.product_manage.Dto.Request.ProductRegisterRequestDto;
 import com.frankit.product_manage.Dto.Request.ProductRequestDto;
 import com.frankit.product_manage.Dto.Response.ProductSelectPagingResponseDto;
 import com.frankit.product_manage.Dto.Response.ProductSelectResponseDto;
+import com.frankit.product_manage.entity.OptionType;
 import com.frankit.product_manage.entity.Product;
+import com.frankit.product_manage.entity.ProductOption;
 import com.frankit.product_manage.exception.product.ProductNotFoundException;
+import com.frankit.product_manage.repository.ProductOptionRepository;
 import com.frankit.product_manage.repository.ProductRepository;
+import com.frankit.product_manage.repository.SelectOptionValueRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,10 @@ import java.util.stream.Collectors;
 public class ProductService {
     @Autowired
     public ProductRepository productRepository;
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
+    @Autowired
+    private SelectOptionValueRepository selectOptionValueRepository;
 
     public void registerProduct(ProductRegisterRequestDto productRequestDto){
         Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -54,10 +62,20 @@ public class ProductService {
         return new ProductSelectPagingResponseDto(productSelectResponseDtoList, productPage.getNumber(), productPage.getSize());
     }
 
-    // 상품 조회 : 배달비, 금액 관련해서 select 추가 ( 금액 ~만원 이상, 배달비 ~원 이하 이런식으로)
-    public ProductSelectPagingResponseDto selectProductByPrice(Long price, int page, int size){
+    // 상품 조회 : 금액 관련해서 select 추가 ( 금액 ~만원 이상, 배달비 ~원 이하 이런식으로)
+    public ProductSelectPagingResponseDto selectProductByGreaterPrice(Long price, int page, int size){
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> productPage = productRepository.findByPriceGreaterThanEqual(price,pageable);
+        List<ProductSelectResponseDto> productSelectResponseDtoList = productPage.stream()
+                .map(ProductSelectResponseDto::new) // Product -> ProductResponseDTO 변환
+                .collect(Collectors.toList());
+
+        return new ProductSelectPagingResponseDto(productSelectResponseDtoList, productPage.getNumber(), productPage.getSize());
+    }
+
+    public ProductSelectPagingResponseDto selectProductByLessPrice(Long price, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByPriceLessThanEqual(price,pageable);
         List<ProductSelectResponseDto> productSelectResponseDtoList = productPage.stream()
                 .map(ProductSelectResponseDto::new) // Product -> ProductResponseDTO 변환
                 .collect(Collectors.toList());
@@ -84,6 +102,7 @@ public class ProductService {
             throw new ProductNotFoundException();
         }
     }
+
     @Transactional
     public void deleteProduct(ProductRequestDto productRequestDto){
 

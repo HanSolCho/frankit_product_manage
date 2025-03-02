@@ -6,12 +6,6 @@ import com.frankit.product_manage.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-/**todo: 맵핑을 각 controller별 다르게 주기 위해 상단에 /product , /member 같은 거 추가 공통 url은 아예 최상단으로 뺄수있는지 확ㅇ니
- *
- * 상품 조회 : 배달비, 금액 관련해서 select 추가 ( 금액 ~만원 이상, 배달비 ~원 이하 이런식으로)
- */
-
 @RestController
 @RequestMapping("/frankit/product-manage/product")
 public class ProductController {
@@ -39,7 +33,15 @@ public class ProductController {
             @RequestParam(value = "price", defaultValue = "0") Long price,
             @RequestParam(value = "pageIndex", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int size){
-        return ResponseEntity.ok(productService.selectProductByPrice(price,page,size));
+        return ResponseEntity.ok(productService.selectProductByGreaterPrice(price,page,size));
+    }
+
+    @GetMapping("/under-price")
+    public ResponseEntity<?> selectProductUnderPrice(
+            @RequestParam(value = "price", defaultValue = "0") Long price,
+            @RequestParam(value = "pageIndex", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int size){
+        return ResponseEntity.ok(productService.selectProductByLessPrice(price,page,size));
     }
 
     @PutMapping("/update")
