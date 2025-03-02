@@ -1,0 +1,34 @@
+src
+├─docs
+│  └─asciidoc //api 문서화를 위한 adoc 파일 디렉토리
+├─main
+│  ├─java
+│  │  └─com
+│  │      └─frankit
+│  │          └─product_manage
+│  │              ├─config
+│  │              ├─controller
+│  │              ├─Dto
+│  │              │  ├─Request
+│  │              │  └─Response
+│  │              ├─entity
+│  │              ├─exception
+│  │              │  ├─member
+│  │              │  └─product
+│  │              │      └─option
+│  │              ├─jwt
+│  │              ├─repository
+│  │              └─service
+│  └─resources
+│      ├─static
+│      │  └─docs
+│      └─templates
+└─test
+    └─java
+        └─com
+            └─frankit
+                └─product_manage
+                    ├─config
+                    ├─controller
+                    ├─repository
+                    └─service
