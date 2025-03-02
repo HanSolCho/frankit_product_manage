@@ -28,6 +28,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.selectAllProduct(page, size));
     }
 
+    @GetMapping("/name")
+    public ResponseEntity<?> selectProductByName(@RequestParam(value = "pageIndex", defaultValue = "0") int page,
+                                                 @RequestParam(value = "pageSize", defaultValue = "10") int size,
+                                                 @RequestParam(value = "name") String name){
+        return ResponseEntity.ok(productService.selectProductByName(name,page,size));
+    }
+
     @GetMapping("/over-price")
     public ResponseEntity<?> selectProductOverPrice(
             @RequestParam(value = "price", defaultValue = "0") Long price,

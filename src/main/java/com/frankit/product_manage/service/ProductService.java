@@ -62,6 +62,18 @@ public class ProductService {
         return new ProductSelectPagingResponseDto(productSelectResponseDtoList, productPage.getNumber(), productPage.getSize());
     }
 
+    public ProductSelectPagingResponseDto selectProductByName(String name,int page, int size){
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(name,pageable); // 데이터 조회
+
+        List<ProductSelectResponseDto> productSelectResponseDtoList = productPage.stream()
+                .map(ProductSelectResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new ProductSelectPagingResponseDto(productSelectResponseDtoList, productPage.getNumber(), productPage.getSize());
+    }
+
     // 상품 조회 : 금액 관련해서 select 추가 ( 금액 ~만원 이상, 배달비 ~원 이하 이런식으로)
     public ProductSelectPagingResponseDto selectProductByGreaterPrice(Long price, int page, int size){
         Pageable pageable = PageRequest.of(page, size);

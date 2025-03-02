@@ -125,6 +125,28 @@ class ProductServiceTest {
     }
 
     @Test
+    void selectProductByName() {
+        // given:
+        int page = 0;
+        int size = 1;
+        String name = "product";
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Product> productPage = new PageImpl<>(List.of(product));
+
+        when(productRepository.findByNameContainingIgnoreCase(name,pageable)).thenReturn(productPage);
+        // when:
+        ProductSelectPagingResponseDto result = productService.selectProductByName(name,page, size);
+
+        // then:
+        assertThat(result.getProducts()).hasSize(1);
+        assertThat(result.getProducts().getFirst().getName()).isEqualTo("product");
+        assertThat(result.getNumber()).isEqualTo(0);
+        assertThat(result.getSize()).isEqualTo(1);
+        verify(productRepository, times(1)).findByNameContainingIgnoreCase(name,pageable);
+    }
+
+    @Test
     void selectProductOverPrice() {
         // given:
         int page = 0;

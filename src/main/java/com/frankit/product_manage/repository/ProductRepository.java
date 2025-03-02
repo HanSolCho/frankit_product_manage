@@ -10,4 +10,5 @@ import org.springframework.data.domain.Pageable;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByPriceGreaterThanEqual(Long price, Pageable pageable);
     Page<Product> findByPriceLessThanEqual(Long price, Pageable pageable);
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }
