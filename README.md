@@ -31,15 +31,18 @@
 -
 - API 문서의 경우 작성한 adoc 파일을 web 혹은 ide를 통해 볼 경우 정상적으로 index.adoc 을 통해 전체 api 문서 확인 가능
 - html화 된 문서의 경우 index.html 파일이 제대로 생성되지 않아 각각의 기능에 따른 api 문서가 따로 만들어져있음.(Member-API.html,Product-API.html.....)
-- API 문서 adoc 파일 경로 :
-- API 문서 html 파일 경로 :
-- postman api 문서도 함께 전달드립니다.
+- API 문서 adoc 파일 경로 : src/docs/asciidoc
+- API 문서 html 파일 경로 : src/main/resources/static/docs
+- postman api 문서도 함께 전달드립니다. 기본적인 API 문서는 Spring Rest Docs를 활용하여 프로젝트 내부 경로에 포함되어 있으나 참조 문서로 전달드립니다. (frankit_product_manage.postman_collection )
+- 프로젝트 구조 문서  : 메인 디렉토리에 첨부되어있으며 전체적인 프로젝트 구조 트리만 작성, 추가 설명이 필요한 구조 생성 시 설명 추가 예정(project_tree)
 
 
-진행 현황
+진행 현황 및 수정 필요 사항
 -
 - 필수 요구 사항 기능 구현 완료
+- ADMIN 유저 초기 설정 관련 로직 추가 필요 ( 초기 구현 및 테스트시에는 첫 ADMIN 유저의 경우 메뉴얼로 추가 )
 - Service단 주요 포인트 관련 exception 처리 구현(추가 보완 필요)
+- exception 코드의 경우 service단에서 적용하도록 에러 코드 선언 및 적용 ( 로그인 관련 기능의 경우 세부 에러 코드 미적용 추후 수정 필요) 
 - 테스트 코드의 경우 각각의 메소드 단위의 단위 테스트 형식으로 구현
 - 테스트 코드의 통합 테스트의 경우 의존성 관련 설정 수정 필요(미완)
 - 테스트 코드 빌드 에러로 인해 빌드 시 test 제외 하도록 설정해둔 상태(test 코드 에러 해결 후 수정)
