@@ -107,14 +107,13 @@ public class MemberService {
     }
 
     public void updateMember(MemberUpdateRequestDto memberUpdateRequestDto){
-
         validateMember(memberUpdateRequestDto.getMemberId(), memberUpdateRequestDto.getPresentPassword());
 
         Optional<Member> validMember = memberRepository.findById(memberUpdateRequestDto.getMemberId());
 
         if (validMember.isPresent()) {
             Member member = validMember.get();
-            member.setPassword(memberUpdateRequestDto.getUpdatePassword());
+            member.setPassword(passwordEncoder.encode(memberUpdateRequestDto.getUpdatePassword()));
             memberRepository.save(member);
             log.info("회원 정보 수정 성공: {}", member.getId());
         } else {
